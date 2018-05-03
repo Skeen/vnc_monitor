@@ -31,8 +31,13 @@ After which the Xorg server should be restarted
 
 Install the VNC server package:
 
-    sudo apt-get install tightvncserver x11vnc
+    sudo apt-get install tightvncserver x11vnc vnc4server
 
+# Install nmap
+
+Install the NMAP package:
+
+    sudo apt-get install nmap
 
 # Preparing the slave machine
 

@@ -1,14 +1,18 @@
 #!/bin/bash
 
+# nmap, xtightvncviewer
+
 # Configuration
-PI_IP=10.42.0.99
+PI_IP=$(sudo nmap -sP 192.168.2.0/24 | awk '/^Nmap/{ip=$NF}/B8:27:EB/{print ip}')
 PI_USER=pi
 VNC_PORT=5900
 DEVICE="VIRTUAL1"
 LOCATION="--right-of eDP1"
 
-WIDTH=1680
-HEIGHT=1050
+#WIDTH=1680
+#HEIGHT=1050
+WIDTH=1920
+HEIGHT=1080
 FREQ=60
 
 # Result variables
@@ -31,7 +35,8 @@ if ! [[ -d $TMPD ]]; then
 fi
 
 # Generate a unique password
-PASSWORD=$(openssl rand -hex 50 | vncpasswd -f | tee ${TMPD}/vncpw)
+PASSWORD=$(openssl rand -hex 50)
+PASSWORD_CRYPT=$(echo -e "$PASSWORD\n$PASSWORD" | vncpasswd ${TMPD}/vncpw)
 scp ${TMPD}/vncpw ${REMOTE}:~/.ava_vncpw
 
 # Open an ssh tunnel
@@ -41,6 +46,7 @@ echo -n ${SSH_PID} > ${TMPD}/tunnel_pid
 
 # Start the VNC server
 CLIP=$(xrandr | grep "^${DEVICE}.*$" | grep -o '[0-9]*x[0-9]*+[0-9]*+[0-9]*')
+echo "Clipping: ${CLIP}"
 nohup x11vnc -clip ${CLIP} -noxinerama -noxrandr \
       -repeat -localhost -nevershared -forever \
       -rfbauth ${TMPD}/vncpw \
